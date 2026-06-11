@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ShiftPulse — Premium workforce management dashboard with real-time shift tracking and availability analytics.">
+    <title>ShiftPulse — Workforce Manager</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<button class="mobile-menu-btn" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<!-- ═══ SIDEBAR ═══ -->
+<div class="app-container">
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand"><h1>⚡ ShiftPulse</h1><p>Workforce Intelligence</p></div>
+    <div class="gradient-divider"></div>
+    <div class="sidebar-section">
+        <h3>📊 Data Overview</h3>
+        <div class="stat-row">
+            <div class="stat-box"><div class="stat-val" id="sb-emp-count">—</div><div class="stat-label">Employees</div></div>
+            <div class="stat-box"><div class="stat-val" id="sb-shift-count">—</div><div class="stat-label">Shifts</div></div>
+        </div>
+        <div id="sb-date-range" style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:4px;"></div>
+    </div>
+    <div class="gradient-divider"></div>
+    <div class="sidebar-section">
+        <h3>🎨 Shift Legend</h3>
+        <div id="sb-legend"></div>
+    </div>
+    <div class="gradient-divider"></div>
+    <div class="sidebar-section sidebar-clock">
+        <h3>🕐 Current Time</h3>
+        <div class="clock-time" id="sb-clock-time"></div>
+        <div class="clock-date" id="sb-clock-date"></div>
+    </div>
+    <div class="gradient-divider"></div>
+    <button class="btn-refresh" onclick="refreshData()">🔄 Refresh Data</button>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main class="main-content">
+    <div class="hero-title">⚡ ShiftPulse — Workforce Manager</div>
+    <div class="hero-subtitle">Real-time shift tracking, availability insights, and workforce analytics</div>
+    <div class="gradient-divider"></div>
+
+    <!-- Tabs -->
+    <div class="tabs-container" id="tabs">
+        <button class="tab-btn active" data-tab="tab1">🔍 Employee Lookup</button>
+        <button class="tab-btn" data-tab="tab2">📅 Calendar View</button>
+        <button class="tab-btn" data-tab="tab3">👥 Shift & Availability</button>
+        <button class="tab-btn" data-tab="tab4">⚡ Real-Time Status</button>
+        <button class="tab-btn" data-tab="tab5">📊 Analytics</button>
+        <button class="tab-btn" data-tab="tab6">🧩 Smart Filter</button>
+    </div>
+
+    <!-- ═══ TAB 1: Employee Lookup ═══ -->
+    <div class="tab-panel active" id="tab1">
+        <div class="section-header">🔍 Employee Shift Lookup</div>
+        <div class="filter-row">
+            <div class="filter-group" style="flex:3"><label>Search Employee</label><select id="t1-emp"><option value="">Start typing to search...</option></select></div>
+            <div class="filter-group" style="flex:1"><label>Date</label><input type="date" id="t1-date"></div>
+        </div>
+        <div id="t1-result"></div>
+    </div>
+
+    <!-- ═══ TAB 2: Calendar ═══ -->
+    <div class="tab-panel" id="tab2">
+        <div class="section-header">📅 Monthly Shift Calendar</div>
+        <div class="filter-row">
+            <div class="filter-group" style="flex:3"><label>Select Employee</label><select id="t2-emp"><option value="">Choose an employee...</option></select></div>
+            <div class="filter-group" style="flex:2"><label>Month</label><select id="t2-month"></select></div>
+        </div>
+        <div id="t2-result"></div>
+    </div>
+
+    <!-- ═══ TAB 3: Shift & Availability ═══ -->
+    <div class="tab-panel" id="tab3">
+        <div class="section-header">👥 Shift-wise View & Availability</div>
+        <div class="filter-row">
+            <div class="filter-group"><label>Select Date</label><input type="date" id="t3-date"></div>
+            <div class="filter-group"><label>Filter by Shift</label><select id="t3-shift"><option>All Shifts</option></select></div>
+            <div class="filter-group"><label>Filter by Support Type</label><select id="t3-support"><option>All Types</option></select></div>
+        </div>
+        <div id="t3-result"></div>
+    </div>
+
+    <!-- ═══ TAB 4: Real-Time ═══ -->
+    <div class="tab-panel" id="tab4">
+        <div class="section-header">⚡ Real-Time Workforce Status</div>
+        <div id="t4-time" style="font-size:1.2rem;color:var(--accent-indigo);font-weight:600;margin-bottom:16px;"></div>
+        <div id="t4-result"></div>
+    </div>
+
+    <!-- ═══ TAB 5: Analytics ═══ -->
+    <div class="tab-panel" id="tab5">
+        <div class="section-header">📊 Shift Distribution Analytics</div>
+        <div class="filter-row">
+            <div class="filter-group" style="max-width:250px"><label>Select Date for Analytics</label><input type="date" id="t5-date"></div>
+        </div>
+        <div id="t5-result"></div>
+    </div>
+
+    <!-- ═══ TAB 6: Smart Filter ═══ -->
+    <div class="tab-panel" id="tab6">
+        <div class="section-header">🧩 Smart Multi-Filter</div>
+        <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:16px;">Combine multiple filters to find exactly who you need.</p>
+        <div class="filter-row">
+            <div class="filter-group"><label>📅 Date</label><input type="date" id="t6-date"></div>
+            <div class="filter-group"><label>🔄 Shift(s)</label><div id="t6-shifts" class="pill-container"></div></div>
+            <div class="filter-group"><label>🏢 Support Type(s)</label><div id="t6-supports" class="pill-container"></div></div>
+            <div class="filter-group"><label>📍 Location(s)</label><div id="t6-locations" class="pill-container"></div></div>
+        </div>
+        <div class="toggle-row">
+            <div class="toggle active" id="t6-toggle" onclick="this.classList.toggle('active');loadSmartFilter()"></div>
+            <span class="toggle-label">Show only available employees (exclude Leave/WO/HO)</span>
+        </div>
+        <div class="gradient-divider"></div>
+        <div id="t6-result"></div>
+    </div>
+
+    <!-- Footer -->
+    <div class="gradient-divider"></div>
+    <div style="text-align:center;color:var(--text-muted);font-size:0.8rem;padding:16px 0;">
+        ⚡ ShiftPulse — Runs Locally | Data refreshes on reload
+    </div>
+</main>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
